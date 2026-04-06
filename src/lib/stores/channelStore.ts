@@ -49,7 +49,7 @@ function getCurrentState(): ChannelStoreState {
 	return result;
 }
 
-export async function loadPlaylist(url: string, forceRefresh = false): Promise<void> {
+export async function loadPlaylist(url: string, forceRefresh = false, name?: string): Promise<void> {
 	store.update((state) => ({ ...state, isLoadingPlaylist: true }));
 	try {
         let channels: Channel[] | undefined;
@@ -61,8 +61,12 @@ export async function loadPlaylist(url: string, forceRefresh = false): Promise<v
 
         if (!channels) {
 		    channels = await loadPlaylistFromUrl(url);
-            await savePlaylistLocally(url, channels);
         }
+		
+		// Always save if we have channels, so that the name gets updated even if from cache
+		if (channels && (name || !forceRefresh)) {
+			await savePlaylistLocally(url, channels, name);
+		}
 
 		store.update((state) => ({
 			...state,

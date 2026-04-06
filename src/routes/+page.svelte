@@ -62,10 +62,10 @@
 		}
 	}
 
-	async function onLoadPlaylist(url: string) {
+	async function onLoadPlaylist(url: string, name?: string) {
 		if (!url) return;
 		try {
-			await loadPlaylist(url);
+			await loadPlaylist(url, false, name);
 		} catch (err) {
 			alert(`Failed to load playlist: ${err instanceof Error ? err.message : 'Unknown error'}`);
 		}

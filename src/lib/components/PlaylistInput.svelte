@@ -4,10 +4,11 @@
 
 	let { isLoading = false, onsubmit } = $props<{
 		isLoading?: boolean;
-		onsubmit: (url: string) => void;
+		onsubmit: (url: string, name?: string) => void;
 	}>();
 
 	let inputUrl = $state('');
+	let inputName = $state('');
 	let savedUrls = $state<{ url: string; timestamp: number }[]>([]);
 
 	async function loadSavedUrls() {
@@ -24,7 +25,7 @@
 	});
 
 	function handleSubmit() {
-		onsubmit(inputUrl);
+		onsubmit(inputUrl, inputName.trim() || undefined);
 		// Reload saved URLs shortly after submission since loadPlaylist should save it
 		setTimeout(loadSavedUrls, 1000);
 	}
@@ -66,6 +67,14 @@
 			{/each}
 		</select>
 	{/if}
+
+	<input
+		type="text"
+		class="url-input name-input"
+		bind:value={inputName}
+		placeholder="Playlist Name (Optional)"
+		onkeydown={handleKeydown}
+	/>
 
 	<input
 		type="text"

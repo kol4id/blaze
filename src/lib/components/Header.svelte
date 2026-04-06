@@ -3,7 +3,7 @@
 
 	let { isLoading = false, onloadplaylist } = $props<{
 		isLoading?: boolean;
-		onloadplaylist: (url: string) => void;
+		onloadplaylist: (url: string, name?: string) => void;
 	}>();
 </script>
 
