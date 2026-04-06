@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: $font-sans;
+	font-size: $fs-base;
+	font-weight: $fw-regular;
+	background-color: $bg-app;
+	color: $text-primary;
+	padding: $spacing-lg;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow: hidden; // полный viewport
+}
+
+/* Base dark scrollbar for the entire body */
+body {
+	@include dark-scrollbar(8px);
+}

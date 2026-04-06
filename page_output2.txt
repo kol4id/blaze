@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="text-scale" content="scale" />
+		<!--12qhfyh--><link rel="icon" href="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='107'%20height='128'%20viewBox='0%200%20107%20128'%3e%3ctitle%3esvelte-logo%3c/title%3e%3cpath%20d='M94.157%2022.819c-10.4-14.885-30.94-19.297-45.792-9.835L22.282%2029.608A29.92%2029.92%200%200%200%208.764%2049.65a31.5%2031.5%200%200%200%203.108%2020.231%2030%2030%200%200%200-4.477%2011.183%2031.9%2031.9%200%200%200%205.448%2024.116c10.402%2014.887%2030.942%2019.297%2045.791%209.835l26.083-16.624A29.92%2029.92%200%200%200%2098.235%2078.35a31.53%2031.53%200%200%200-3.105-20.232%2030%2030%200%200%200%204.474-11.182%2031.88%2031.88%200%200%200-5.447-24.116'%20style='fill:%23ff3e00'/%3e%3cpath%20d='M45.817%20106.582a20.72%2020.72%200%200%201-22.237-8.243%2019.17%2019.17%200%200%201-3.277-14.503%2018%2018%200%200%201%20.624-2.435l.49-1.498%201.337.981a33.6%2033.6%200%200%200%2010.203%205.098l.97.294-.09.968a5.85%205.85%200%200%200%201.052%203.878%206.24%206.24%200%200%200%206.695%202.485%205.8%205.8%200%200%200%201.603-.704L69.27%2076.28a5.43%205.43%200%200%200%202.45-3.631%205.8%205.8%200%200%200-.987-4.371%206.24%206.24%200%200%200-6.698-2.487%205.7%205.7%200%200%200-1.6.704l-9.953%206.345a19%2019%200%200%201-5.296%202.326%2020.72%2020.72%200%200%201-22.237-8.243%2019.17%2019.17%200%200%201-3.277-14.502%2017.99%2017.99%200%200%201%208.13-12.052l26.081-16.623a19%2019%200%200%201%205.3-2.329%2020.72%2020.72%200%200%201%2022.237%208.243%2019.17%2019.17%200%200%201%203.277%2014.503%2018%2018%200%200%201-.624%202.435l-.49%201.498-1.337-.98a33.6%2033.6%200%200%200-10.203-5.1l-.97-.294.09-.968a5.86%205.86%200%200%200-1.052-3.878%206.24%206.24%200%200%200-6.696-2.485%205.8%205.8%200%200%200-1.602.704L37.73%2051.72a5.42%205.42%200%200%200-2.449%203.63%205.79%205.79%200%200%200%20.986%204.372%206.24%206.24%200%200%200%206.698%202.486%205.8%205.8%200%200%200%201.602-.704l9.952-6.342a19%2019%200%200%201%205.295-2.328%2020.72%2020.72%200%200%201%2022.237%208.242%2019.17%2019.17%200%200%201%203.277%2014.503%2018%2018%200%200%201-8.13%2012.053l-26.081%2016.622a19%2019%200%200%201-5.3%202.328'%20style='fill:%23fff'/%3e%3c/svg%3e"/> <meta name="description" content="Premium IPTV streaming player with smart preloading"/><!----><title>Blaze — IPTV Player</title>
+		<style data-sveltekit>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap");
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  background-color: #0a0e17;
+  color: #e2e8f0;
+  padding: 20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+/* Base dark scrollbar for the entire body */
+body::-webkit-scrollbar {
+  width: 8px;
+}
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+main.s-y_bCXRrkrYfP {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.layout.s-y_bCXRrkrYfP {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 120px);
+  flex-grow: 1;
+} .s-y_bCXRrkrYfP{}
+header.s-OTmmHBhb3fXp {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo.s-OTmmHBhb3fXp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00d4ff, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.logo-icon.s-OTmmHBhb3fXp {
+  font-size: 28px;
+}
+
+.input-area.s-OTmmHBhb3fXp {
+  flex-grow: 1;
+} .s-OTmmHBhb3fXp{}
+.channel-panel.s-z0uASEaL9ghi {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.panel-header.s-z0uASEaL9ghi {
+  padding: 16px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #64748b;
+}
+
+.channel-list.s-z0uASEaL9ghi {
+  list-style: none;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.channel-list.s-z0uASEaL9ghi::-webkit-scrollbar {
+  width: 6px;
+}
+.channel-list.s-z0uASEaL9ghi::-webkit-scrollbar-track {
+  background: transparent;
+}
+.channel-list.s-z0uASEaL9ghi::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+.channel-list.s-z0uASEaL9ghi::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.empty-state.s-z0uASEaL9ghi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  color: #475569;
+  font-size: 13px;
+  padding: 20px;
+  text-align: center;
+} .s-z0uASEaL9ghi{}
+.player-wrapper.s-l8wNxeAF4A3W {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.player-container.s-l8wNxeAF4A3W {
+  position: relative;
+  box-shadow: 0 0 80px rgba(0, 212, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.placeholder.s-l8wNxeAF4A3W {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+  color: #475569;
+  font-size: 16px;
+  border: none;
+}
+.placeholder.s-l8wNxeAF4A3W .placeholder-icon:where(.s-l8wNxeAF4A3W) {
+  font-size: 48px;
+  opacity: 0.3;
+  animation: s-l8wNxeAF4A3W-subtle-pulse 3s ease-in-out infinite;
+}
+
+.debug-panel.s-l8wNxeAF4A3W {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 12px;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  color: #64748b;
+  display: flex;
+  gap: 24px;
+}
+
+.debug-item.s-l8wNxeAF4A3W {
+  display: flex;
+  gap: 8px;
+}
+
+.debug-value.s-l8wNxeAF4A3W {
+  color: #00d4ff;
+}
+
+@keyframes s-l8wNxeAF4A3W-subtle-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+} .s-l8wNxeAF4A3W{}
+.input-group.s--fzvrmj-AjoI {
+  display: flex;
+  gap: 12px;
+}
+
+.url-input.s--fzvrmj-AjoI {
+  flex-grow: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.url-input.s--fzvrmj-AjoI::placeholder {
+  color: #475569;
+}
+.url-input.s--fzvrmj-AjoI:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+.load-btn.s--fzvrmj-AjoI {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #00d4ff, #7c3aed);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+.load-btn.s--fzvrmj-AjoI:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+.load-btn.s--fzvrmj-AjoI:active:not(:disabled) {
+  transform: translateY(0);
+}
+.load-btn.s--fzvrmj-AjoI:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+} .s--fzvrmj-AjoI{}
+.channel-item.s-nAUYw6Mb8JS6 {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  border-left: 3px solid transparent;
+}
+.channel-item.s-nAUYw6Mb8JS6:hover:not(.offline) {
+  background: rgba(255, 255, 255, 0.08);
+  padding-left: calc(16px + 4px);
+}
+.channel-item.s-nAUYw6Mb8JS6:focus-visible {
+  background: rgba(0, 212, 255, 0.15);
+  outline: 2px solid #00d4ff;
+  outline-offset: -2px;
+}
+.channel-item.active.s-nAUYw6Mb8JS6 {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(124, 58, 237, 0.1));
+  border-left-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+.channel-item.offline.s-nAUYw6Mb8JS6 {
+  opacity: 0.3;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.channel-info.s-nAUYw6Mb8JS6 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.channel-name.s-nAUYw6Mb8JS6 {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-indicator.s-nAUYw6Mb8JS6 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.status-dot.s-nAUYw6Mb8JS6 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.online.s-nAUYw6Mb8JS6 {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+.status-dot.offline-dot.s-nAUYw6Mb8JS6 {
+  background: #ef4444;
+}
+.status-dot.checking.s-nAUYw6Mb8JS6 {
+  background: #f59e0b;
+  animation: s-nAUYw6Mb8JS6-pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes s-nAUYw6Mb8JS6-pulse-dot {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+} .s-nAUYw6Mb8JS6{}
+.video-container.s-k0iVoWv9ow3f {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.player.s-k0iVoWv9ow3f {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.15s ease;
+}
+
+.active.s-k0iVoWv9ow3f {
+  opacity: 1;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.hidden.s-k0iVoWv9ow3f {
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.error-overlay.s-k0iVoWv9ow3f {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+} .s-k0iVoWv9ow3f{}</style>
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><main class="s-y_bCXRrkrYfP"><header class="s-OTmmHBhb3fXp"><div class="logo s-OTmmHBhb3fXp"><span class="logo-icon s-OTmmHBhb3fXp">⚡</span> Blaze</div> <div class="input-area s-OTmmHBhb3fXp"><div class="input-group s--fzvrmj-AjoI"><input type="text" class="url-input s--fzvrmj-AjoI" value="" placeholder="Link to .m3u playlist"/> <button class="load-btn s--fzvrmj-AjoI">Load Playlist</button></div><!----></div></header><!----> <div class="layout s-y_bCXRrkrYfP"><div class="channel-panel s-z0uASEaL9ghi"><div class="panel-header s-z0uASEaL9ghi">Channels (0)</div> <!--[-1--><div class="empty-state s-z0uASEaL9ghi">No channels loaded</div><!--]--></div><!----> <div class="player-wrapper s-l8wNxeAF4A3W"><div class="player-container s-l8wNxeAF4A3W"><!--[-1--><div class="placeholder s-l8wNxeAF4A3W"><span class="placeholder-icon s-l8wNxeAF4A3W">▶</span> <span class="s-l8wNxeAF4A3W">Select a channel to start playback</span></div><!--]--></div> <!--[-1--><!--]--></div><!----></div></main><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_dev = {
+						base: new URL(".", location).pathname.slice(0, -1),
+						env: {}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/@fs/C:/vscode/Blaze/blaze/node_modules/@sveltejs/kit/src/runtime/client/entry.js"),
+						import("/@fs/C:/vscode/Blaze/blaze/.svelte-kit/generated/client/app.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 2],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+Loading svelte-check in workspace: c:\vscode\Blaze\blaze
+Getting Svelte diagnostics...
+
+c:\vscode\Blaze\blaze\[32msrc\routes\api\proxy\+server.ts[39m:31:39
+[31mError[39m: 'error' is of type 'unknown'. 
+[36m		console.error('Proxy error:', error);
+		return new Response(`Proxy error: ${[35merror[36m.message}`, { status: 500 });
+	}[39m
+
+====================================
+[31msvelte-check found 1 error and 0 warnings in 1 file
+[39m

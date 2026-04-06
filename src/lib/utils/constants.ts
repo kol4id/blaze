@@ -1,4 +1,4 @@
-export const HEALTH_CHECK_TIMEOUT_MS = 4000;
+export const HEALTH_CHECK_TIMEOUT_MS = 8000;
 export const HEALTH_CHECK_CONCURRENCY = 16;
 export const PRELOAD_LIMIT = 10;
 export const TOTAL_PLAYER_SLOTS = 11;

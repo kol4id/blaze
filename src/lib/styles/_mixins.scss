@@ -1,0 +1,54 @@
+@use 'variables' as *;
+
+// Glassmorphism карточка
+@mixin glass($bg: $bg-glass, $radius: $radius-lg) {
+	background: $bg;
+	backdrop-filter: blur($blur-glass);
+	-webkit-backdrop-filter: blur($blur-glass);
+	border: 1px solid $border-glass;
+	border-radius: $radius;
+}
+
+// Центрирование flex
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+// Обрезка текста
+@mixin text-ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Glow-эффект для активных элементов
+@mixin glow-accent {
+	box-shadow: $glow-accent;
+}
+
+// Скроллбар в стиле тёмной темы
+@mixin dark-scrollbar($width: 6px) {
+	&::-webkit-scrollbar {
+		width: $width;
+	}
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 3px;
+		&:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+	}
+}
+
+// Градиентный текст
+@mixin gradient-text {
+	background: $gradient-cta;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}

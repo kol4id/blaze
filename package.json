@@ -26,6 +26,7 @@
 		"globals": "^17.4.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.4.1",
+		"sass": "^1.99.0",
 		"svelte": "^5.54.0",
 		"svelte-check": "^4.4.2",
 		"typescript": "^5.9.3",
@@ -33,6 +34,7 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
-		"hls.js": "^1.6.15"
+		"hls.js": "^1.6.15",
+		"idb-keyval": "^6.2.2"
 	}
 }
