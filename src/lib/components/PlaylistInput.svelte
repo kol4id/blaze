@@ -14,9 +14,9 @@
 	async function loadSavedUrls() {
 		try {
 			const playlists = await getAllSavedPlaylistsLocally();
-			savedUrls = playlists.map(p => ({ url: p.url, timestamp: p.timestamp }));
+			savedUrls = playlists.map((p) => ({ url: p.url, timestamp: p.timestamp }));
 		} catch (e) {
-			console.error("Failed to load saved playlists", e);
+			console.error('Failed to load saved playlists', e);
 		}
 	}
 
@@ -62,7 +62,7 @@
 				if (val) {
 					inputUrl = val;
 					handleSubmit();
-					(e.currentTarget as HTMLSelectElement).value = "";
+					(e.currentTarget as HTMLSelectElement).value = '';
 				}
 			}}
 		>
@@ -100,7 +100,7 @@
 </div>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	.input-group {
 		display: flex;
 		gap: $spacing-sm;

@@ -46,7 +46,7 @@
 </li>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	.channel-item {
 		padding: $spacing-sm $spacing-md;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.04);

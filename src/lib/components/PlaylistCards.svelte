@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { getAllSavedPlaylistsLocally, updatePlaylistDataLocally, deletePlaylistLocally } from '../services/storageService';
+	import {
+		getAllSavedPlaylistsLocally,
+		updatePlaylistDataLocally,
+		deletePlaylistLocally
+	} from '../services/storageService';
 	import type { SavedPlaylist } from '../services/storageService';
 
 	let { onselect } = $props<{
@@ -9,7 +13,7 @@
 
 	let savedPlaylists = $state<SavedPlaylist[]>([]);
 	let isLoading = $state(true);
-	
+
 	let editingPlaylist = $state<SavedPlaylist | null>(null);
 	let editName = $state('');
 	let editUrl = $state('');
@@ -17,7 +21,7 @@
 	onMount(async () => {
 		await loadPlaylists();
 	});
-	
+
 	async function loadPlaylists() {
 		try {
 			savedPlaylists = await getAllSavedPlaylistsLocally();
@@ -52,7 +56,7 @@
 			input.focus();
 		}
 	}
-	
+
 	async function openSettings(playlist: SavedPlaylist) {
 		editingPlaylist = playlist;
 		editName = playlist.name || formatLabel(playlist.url);
@@ -65,7 +69,7 @@
 	function closeSettings() {
 		editingPlaylist = null;
 	}
-	
+
 	async function saveSettings() {
 		if (editingPlaylist && editUrl.trim()) {
 			await updatePlaylistDataLocally(editingPlaylist.url, editUrl.trim(), editName.trim());
@@ -115,7 +119,10 @@
 					</button>
 					<button
 						class="settings-btn"
-						onclick={(e) => { e.stopPropagation(); openSettings(playlist); }}
+						onclick={(e) => {
+							e.stopPropagation();
+							openSettings(playlist);
+						}}
 						aria-label="Playlist settings"
 					>
 						⚙️
@@ -124,10 +131,7 @@
 			{/each}
 
 			<div class="card-wrapper">
-				<button
-					class="card new-card"
-					onclick={focusHeaderInput}
-				>
+				<button class="card new-card" onclick={focusHeaderInput}>
 					<div class="card-icon">+</div>
 					<div class="card-content">
 						<span class="card-title">Add New</span>
@@ -139,10 +143,20 @@
 	{/if}
 
 	{#if editingPlaylist}
-		<div class="modal-overlay" onclick={closeSettings} onkeydown={handleModalKeydown} role="presentation">
-			<div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+		<div
+			class="modal-overlay"
+			onclick={closeSettings}
+			onkeydown={handleModalKeydown}
+			role="presentation"
+		>
+			<div
+				class="modal-content"
+				onclick={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+			>
 				<h3>Playlist Settings</h3>
-				
+
 				<div class="form-group">
 					<label for="editName">Playlist Name</label>
 					<input id="editName" type="text" class="modal-input" bind:value={editName} />
@@ -165,7 +179,7 @@
 </div>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 
 	.playlist-cards-container {
 		flex-grow: 1;
@@ -227,7 +241,9 @@
 		&:focus-visible {
 			outline: none;
 			border-color: $accent-cyan;
-			box-shadow: 0 0 0 4px rgba($accent-cyan, 0.2), $glow-ambient;
+			box-shadow:
+				0 0 0 4px rgba($accent-cyan, 0.2),
+				$glow-ambient;
 			transform: translateY(-4px);
 		}
 	}
@@ -245,7 +261,8 @@
 		transition: all $transition-base;
 		z-index: 2;
 
-		&:hover, &:focus-visible {
+		&:hover,
+		&:focus-visible {
 			background: rgba($accent-cyan, 0.2);
 			border-color: $accent-cyan;
 			transform: scale(1.1);
@@ -290,8 +307,9 @@
 		background: transparent;
 		border: 2px dashed $border-glass;
 
-		&:hover, &:focus-visible {
-			background: rgba(255,255,255,0.02);
+		&:hover,
+		&:focus-visible {
+			background: rgba(255, 255, 255, 0.02);
 			border-color: $accent-violet;
 			.card-icon {
 				color: $accent-violet;
@@ -301,7 +319,7 @@
 
 		.card-icon {
 			color: $text-muted;
-			background: rgba(255,255,255,0.05);
+			background: rgba(255, 255, 255, 0.05);
 		}
 	}
 

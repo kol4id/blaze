@@ -7,9 +7,8 @@
 		currentIndexStore,
 		isLoadingPlaylistStore,
 		loadPlaylist,
-        loadLastPlaylist,
+		loadLastPlaylist,
 		playChannelByIndex,
-		playChannel,
 		setHoveredUrl,
 		getPreloadUrls
 	} from '$lib/stores/channelStore';
@@ -45,7 +44,12 @@
 		const active = document.activeElement;
 		if (active) {
 			const tag = active.tagName;
-			if (tag === 'INPUT' || tag === 'SELECT' || active.closest('header') || active.closest('.playlist-cards-container')) {
+			if (
+				tag === 'INPUT' ||
+				tag === 'SELECT' ||
+				active.closest('header') ||
+				active.closest('.playlist-cards-container')
+			) {
 				// We don't hijack if the user is explicitly focused on input forms or playlist selection
 				return;
 			}
@@ -86,7 +90,7 @@
 
 	onMount(() => {
 		window.addEventListener('keydown', handleKeydown);
-        loadLastPlaylist();
+		loadLastPlaylist();
 	});
 	onDestroy(() => {
 		unsubs.forEach((u) => u());
@@ -107,7 +111,7 @@
 				{channels}
 				{currentStreamUrl}
 				{isLoadingList}
-				onselect={playChannel}
+				onselect={playChannelByIndex}
 				onhoverstart={handleHoverStart}
 				onhoverend={handleHoverEnd}
 			/>
@@ -117,7 +121,7 @@
 </main>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	main {
 		height: calc(100vh - #{$spacing-lg * 2});
 		display: flex;
