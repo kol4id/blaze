@@ -14,17 +14,19 @@ export function computePreloadUrls(
 
 	let count = 0;
 	for (let i = currentIndex - 1; i >= 0 && count < 5; i--) {
-		if (channels[i].status === ChannelStatus.Online) {
+		const channel = channels[i];
+		if (channel.status === ChannelStatus.Online) {
 			count++;
-			candidates.push({ url: channels[i].url, distance: count });
+			candidates.push({ url: channel.url, distance: count });
 		}
 	}
 
 	count = 0;
 	for (let i = currentIndex + 1; i < channels.length && count < 5; i++) {
-		if (channels[i].status === ChannelStatus.Online) {
+		const channel = channels[i];
+		if (channel.status === ChannelStatus.Online) {
 			count++;
-			candidates.push({ url: channels[i].url, distance: count });
+			candidates.push({ url: channel.url, distance: count });
 		}
 	}
 
