@@ -22,14 +22,26 @@ export async function savePlaylistLocally(url: string, channels: Channel[], name
 	await set(LAST_PLAYLIST_KEY, url);
 }
 
-export async function updatePlaylistNameLocally(url: string, name: string): Promise<void> {
-	const existing = await getPlaylistLocally(url);
+export async function updatePlaylistDataLocally(oldUrl: string, newUrl: string, newName: string): Promise<void> {
+	const existing = await getPlaylistLocally(oldUrl);
 	if (existing) {
-		await set(PLAYLIST_KEY_PREFIX + url, {
+		const updatedPlaylist = {
 			...existing,
-			name,
-			timestamp: Date.now() // or preserve timestamp: existing.timestamp
-		});
+			url: newUrl,
+			name: newName,
+			timestamp: Date.now()
+		};
+		
+		if (oldUrl !== newUrl) {
+			await del(PLAYLIST_KEY_PREFIX + oldUrl);
+			// Also update last playlist if it was this one
+			const lastKey = await get<string>(LAST_PLAYLIST_KEY);
+			if (lastKey === oldUrl) {
+				await set(LAST_PLAYLIST_KEY, newUrl);
+			}
+		}
+		
+		await set(PLAYLIST_KEY_PREFIX + newUrl, updatedPlaylist);
 	}
 }
 

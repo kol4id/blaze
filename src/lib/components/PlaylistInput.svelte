@@ -22,6 +22,11 @@
 
 	onMount(() => {
 		loadSavedUrls();
+		const handleUpdate = () => loadSavedUrls();
+		window.addEventListener('playlists-updated', handleUpdate);
+		return () => {
+			window.removeEventListener('playlists-updated', handleUpdate);
+		};
 	});
 
 	function handleSubmit() {

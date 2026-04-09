@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { getAllSavedPlaylistsLocally, updatePlaylistNameLocally } from '../services/storageService';
+	import { getAllSavedPlaylistsLocally, updatePlaylistDataLocally, deletePlaylistLocally } from '../services/storageService';
 	import type { SavedPlaylist } from '../services/storageService';
 
 	let { onselect } = $props<{
@@ -10,8 +10,9 @@
 	let savedPlaylists = $state<SavedPlaylist[]>([]);
 	let isLoading = $state(true);
 	
-	let editingUrl = $state<string | null>(null);
+	let editingPlaylist = $state<SavedPlaylist | null>(null);
 	let editName = $state('');
+	let editUrl = $state('');
 
 	onMount(async () => {
 		await loadPlaylists();
@@ -52,28 +53,43 @@
 		}
 	}
 	
-	async function startEditing(playlist: SavedPlaylist) {
-		editingUrl = playlist.url;
+	async function openSettings(playlist: SavedPlaylist) {
+		editingPlaylist = playlist;
 		editName = playlist.name || formatLabel(playlist.url);
+		editUrl = playlist.url;
 		await tick();
-		const activeInput = document.querySelector('.edit-input') as HTMLInputElement;
-		if (activeInput) activeInput.focus();
+		const nameInput = document.querySelector('.modal-input') as HTMLInputElement;
+		if (nameInput) nameInput.focus();
+	}
+
+	function closeSettings() {
+		editingPlaylist = null;
 	}
 	
-	async function saveEditing(url: string) {
-		if (editingUrl) {
-			await updatePlaylistNameLocally(url, editName.trim());
-			editingUrl = null;
+	async function saveSettings() {
+		if (editingPlaylist && editUrl.trim()) {
+			await updatePlaylistDataLocally(editingPlaylist.url, editUrl.trim(), editName.trim());
+			editingPlaylist = null;
 			await loadPlaylists();
+			window.dispatchEvent(new CustomEvent('playlists-updated'));
 		}
 	}
-	
-	function handleEditKeydown(e: KeyboardEvent, url: string) {
-		if (e.key === 'Enter') {
+
+	async function handleDelete() {
+		if (editingPlaylist && confirm('Are you sure you want to delete this playlist?')) {
+			await deletePlaylistLocally(editingPlaylist.url);
+			editingPlaylist = null;
+			await loadPlaylists();
+			window.dispatchEvent(new CustomEvent('playlists-updated'));
+		}
+	}
+
+	function handleModalKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			closeSettings();
+		} else if (e.key === 'Enter') {
 			e.preventDefault();
-			saveEditing(url);
-		} else if (e.key === 'Escape') {
-			editingUrl = null;
+			saveSettings();
 		}
 	}
 </script>
@@ -86,37 +102,24 @@
 		<div class="cards-grid">
 			{#each savedPlaylists as playlist (playlist.url)}
 				<div class="card-wrapper">
-					{#if editingUrl === playlist.url}
-						<div class="card edit-mode">
-							<input
-								type="text"
-								class="edit-input"
-								bind:value={editName}
-								onkeydown={(e) => handleEditKeydown(e, playlist.url)}
-								onblur={() => saveEditing(playlist.url)}
-							/>
-							<button class="save-btn" onclick={() => saveEditing(playlist.url)}>💾</button>
+					<button
+						class="card"
+						onclick={() => onselect(playlist.url)}
+						onkeydown={(e) => handleKeydown(e, playlist.url)}
+					>
+						<div class="card-icon">📺</div>
+						<div class="card-content">
+							<span class="card-title">{playlist.name || formatLabel(playlist.url)}</span>
+							<span class="card-meta">{playlist.channels.length} channels</span>
 						</div>
-					{:else}
-						<button
-							class="card"
-							onclick={() => onselect(playlist.url)}
-							onkeydown={(e) => handleKeydown(e, playlist.url)}
-						>
-							<div class="card-icon">📺</div>
-							<div class="card-content">
-								<span class="card-title">{playlist.name || formatLabel(playlist.url)}</span>
-								<span class="card-meta">{playlist.channels.length} channels</span>
-							</div>
-						</button>
-						<button
-							class="edit-btn"
-							onclick={(e) => { e.stopPropagation(); startEditing(playlist); }}
-							aria-label="Edit playlist name"
-						>
-							✏️
-						</button>
-					{/if}
+					</button>
+					<button
+						class="settings-btn"
+						onclick={(e) => { e.stopPropagation(); openSettings(playlist); }}
+						aria-label="Playlist settings"
+					>
+						⚙️
+					</button>
 				</div>
 			{/each}
 
@@ -131,6 +134,31 @@
 						<span class="card-meta">Enter URL above</span>
 					</div>
 				</button>
+			</div>
+		</div>
+	{/if}
+
+	{#if editingPlaylist}
+		<div class="modal-overlay" onclick={closeSettings} onkeydown={handleModalKeydown} role="presentation">
+			<div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+				<h3>Playlist Settings</h3>
+				
+				<div class="form-group">
+					<label for="editName">Playlist Name</label>
+					<input id="editName" type="text" class="modal-input" bind:value={editName} />
+				</div>
+
+				<div class="form-group">
+					<label for="editUrl">M3U URL</label>
+					<input id="editUrl" type="text" class="modal-input" bind:value={editUrl} />
+				</div>
+
+				<div class="modal-actions">
+					<button class="btn btn-delete" onclick={handleDelete}>🗑️ Delete</button>
+					<div class="spacer"></div>
+					<button class="btn btn-cancel" onclick={closeSettings}>Cancel</button>
+					<button class="btn btn-save" onclick={saveSettings}>Save</button>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -204,7 +232,7 @@
 		}
 	}
 
-	.edit-btn {
+	.settings-btn {
 		position: absolute;
 		top: 10px;
 		right: 10px;
@@ -222,45 +250,6 @@
 			border-color: $accent-cyan;
 			transform: scale(1.1);
 			outline: none;
-		}
-	}
-
-	.edit-mode {
-		flex-direction: row;
-		padding: $spacing-md;
-		gap: $spacing-sm;
-
-		&:hover {
-			transform: none;
-			box-shadow: none;
-		}
-	}
-
-	.edit-input {
-		flex-grow: 1;
-		padding: $spacing-sm;
-		background: rgba(0, 0, 0, 0.3);
-		border: 1px solid $accent-cyan;
-		border-radius: $radius-sm;
-		color: $text-primary;
-		font-family: inherit;
-
-		&:focus {
-			outline: none;
-			box-shadow: 0 0 0 2px rgba($accent-cyan, 0.3);
-		}
-	}
-
-	.save-btn {
-		padding: $spacing-sm;
-		background: transparent;
-		border: none;
-		cursor: pointer;
-		border-radius: $radius-sm;
-
-		&:hover, &:focus-visible {
-			background: rgba(255, 255, 255, 0.1);
-			outline: 2px solid $accent-cyan;
 		}
 	}
 
@@ -313,6 +302,120 @@
 		.card-icon {
 			color: $text-muted;
 			background: rgba(255,255,255,0.05);
+		}
+	}
+
+	/* Modal Styles */
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(4px);
+		@include flex-center;
+		z-index: 100;
+	}
+
+	.modal-content {
+		background: $bg-glass;
+		border: 1px solid $border-glass;
+		border-radius: $radius-lg;
+		padding: $spacing-xl;
+		width: 90%;
+		max-width: 500px;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+		display: flex;
+		flex-direction: column;
+		gap: $spacing-lg;
+
+		h3 {
+			margin: 0;
+			color: $text-primary;
+			font-size: $fs-xl;
+			@include gradient-text;
+		}
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: $spacing-xs;
+
+		label {
+			font-size: $fs-sm;
+			color: $text-secondary;
+		}
+	}
+
+	.modal-input {
+		padding: $spacing-sm $spacing-md;
+		background: $bg-input;
+		border: 1px solid $border-input;
+		border-radius: $radius-sm;
+		color: $text-primary;
+		font-family: inherit;
+		font-size: $fs-base;
+
+		&:focus {
+			outline: none;
+			border-color: $accent-cyan;
+			box-shadow: 0 0 0 2px rgba($accent-cyan, 0.2);
+		}
+	}
+
+	.modal-actions {
+		display: flex;
+		gap: $spacing-sm;
+		margin-top: $spacing-md;
+
+		.spacer {
+			flex-grow: 1;
+		}
+	}
+
+	.btn {
+		padding: $spacing-sm $spacing-md;
+		border-radius: $radius-sm;
+		cursor: pointer;
+		font-weight: $fw-medium;
+		transition: all $transition-base;
+		border: none;
+
+		&:focus-visible {
+			outline: 2px solid $accent-cyan;
+			outline-offset: 2px;
+		}
+	}
+
+	.btn-delete {
+		background: rgba(#ef4444, 0.1);
+		color: #ef4444;
+		border: 1px solid rgba(#ef4444, 0.3);
+
+		&:hover {
+			background: #ef4444;
+			color: white;
+		}
+	}
+
+	.btn-cancel {
+		background: rgba(255, 255, 255, 0.1);
+		color: $text-primary;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+	}
+
+	.btn-save {
+		background: $gradient-cta;
+		color: white;
+
+		&:hover {
+			box-shadow: $glow-accent;
+			transform: translateY(-1px);
 		}
 	}
 </style>
