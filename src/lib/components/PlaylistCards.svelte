@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import PlaylistModal from './PlaylistModal.svelte';
 	import {
 		getAllSavedPlaylistsLocally,
 		updatePlaylistDataLocally,
@@ -70,9 +71,9 @@
 		editingPlaylist = null;
 	}
 
-	async function saveSettings() {
-		if (editingPlaylist && editUrl.trim()) {
-			await updatePlaylistDataLocally(editingPlaylist.url, editUrl.trim(), editName.trim());
+	async function saveSettings(newName: string, newUrl: string) {
+		if (editingPlaylist && newUrl.trim()) {
+			await updatePlaylistDataLocally(editingPlaylist.url, newUrl.trim(), newName.trim());
 			editingPlaylist = null;
 			await loadPlaylists();
 			window.dispatchEvent(new CustomEvent('playlists-updated'));
@@ -85,15 +86,6 @@
 			editingPlaylist = null;
 			await loadPlaylists();
 			window.dispatchEvent(new CustomEvent('playlists-updated'));
-		}
-	}
-
-	function handleModalKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			closeSettings();
-		} else if (e.key === 'Enter') {
-			e.preventDefault();
-			saveSettings();
 		}
 	}
 </script>
@@ -143,38 +135,13 @@
 	{/if}
 
 	{#if editingPlaylist}
-		<div
-			class="modal-overlay"
-			onclick={closeSettings}
-			onkeydown={handleModalKeydown}
-			role="presentation"
-		>
-			<div
-				class="modal-content"
-				onclick={(e) => e.stopPropagation()}
-				role="dialog"
-				aria-modal="true"
-			>
-				<h3>Playlist Settings</h3>
-
-				<div class="form-group">
-					<label for="editName">Playlist Name</label>
-					<input id="editName" type="text" class="modal-input" bind:value={editName} />
-				</div>
-
-				<div class="form-group">
-					<label for="editUrl">M3U URL</label>
-					<input id="editUrl" type="text" class="modal-input" bind:value={editUrl} />
-				</div>
-
-				<div class="modal-actions">
-					<button class="btn btn-delete" onclick={handleDelete}>🗑️ Delete</button>
-					<div class="spacer"></div>
-					<button class="btn btn-cancel" onclick={closeSettings}>Cancel</button>
-					<button class="btn btn-save" onclick={saveSettings}>Save</button>
-				</div>
-			</div>
-		</div>
+		<PlaylistModal
+			initialName={editName}
+			initialUrl={editUrl}
+			onsave={saveSettings}
+			oncancel={closeSettings}
+			ondelete={handleDelete}
+		/>
 	{/if}
 </div>
 
@@ -320,120 +287,6 @@
 		.card-icon {
 			color: $text-muted;
 			background: rgba(255, 255, 255, 0.05);
-		}
-	}
-
-	/* Modal Styles */
-	.modal-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: rgba(0, 0, 0, 0.6);
-		backdrop-filter: blur(4px);
-		@include flex-center;
-		z-index: 100;
-	}
-
-	.modal-content {
-		background: $bg-glass;
-		border: 1px solid $border-glass;
-		border-radius: $radius-lg;
-		padding: $spacing-xl;
-		width: 90%;
-		max-width: 500px;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-		display: flex;
-		flex-direction: column;
-		gap: $spacing-lg;
-
-		h3 {
-			margin: 0;
-			color: $text-primary;
-			font-size: $fs-xl;
-			@include gradient-text;
-		}
-	}
-
-	.form-group {
-		display: flex;
-		flex-direction: column;
-		gap: $spacing-xs;
-
-		label {
-			font-size: $fs-sm;
-			color: $text-secondary;
-		}
-	}
-
-	.modal-input {
-		padding: $spacing-sm $spacing-md;
-		background: $bg-input;
-		border: 1px solid $border-input;
-		border-radius: $radius-sm;
-		color: $text-primary;
-		font-family: inherit;
-		font-size: $fs-base;
-
-		&:focus {
-			outline: none;
-			border-color: $accent-cyan;
-			box-shadow: 0 0 0 2px rgba($accent-cyan, 0.2);
-		}
-	}
-
-	.modal-actions {
-		display: flex;
-		gap: $spacing-sm;
-		margin-top: $spacing-md;
-
-		.spacer {
-			flex-grow: 1;
-		}
-	}
-
-	.btn {
-		padding: $spacing-sm $spacing-md;
-		border-radius: $radius-sm;
-		cursor: pointer;
-		font-weight: $fw-medium;
-		transition: all $transition-base;
-		border: none;
-
-		&:focus-visible {
-			outline: 2px solid $accent-cyan;
-			outline-offset: 2px;
-		}
-	}
-
-	.btn-delete {
-		background: rgba(#ef4444, 0.1);
-		color: #ef4444;
-		border: 1px solid rgba(#ef4444, 0.3);
-
-		&:hover {
-			background: #ef4444;
-			color: white;
-		}
-	}
-
-	.btn-cancel {
-		background: rgba(255, 255, 255, 0.1);
-		color: $text-primary;
-
-		&:hover {
-			background: rgba(255, 255, 255, 0.2);
-		}
-	}
-
-	.btn-save {
-		background: $gradient-cta;
-		color: white;
-
-		&:hover {
-			box-shadow: $glow-accent;
-			transform: translateY(-1px);
 		}
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { getAllSavedPlaylistsLocally } from '../services/storageService';
+	import PlaylistModal from './PlaylistModal.svelte';
 
 	let { isLoading = false, onsubmit } = $props<{
 		isLoading?: boolean;
@@ -9,6 +10,7 @@
 
 	let inputUrl = $state('');
 	let inputName = $state('');
+	let showModal = $state(false);
 	let savedUrls = $state<{ url: string; timestamp: number }[]>([]);
 
 	async function loadSavedUrls() {
@@ -30,8 +32,16 @@
 	});
 
 	function handleSubmit() {
-		onsubmit(inputUrl, inputName.trim() || undefined);
-		// Reload saved URLs shortly after submission since loadPlaylist should save it
+		if (inputUrl.trim()) {
+			showModal = true;
+		}
+	}
+
+	function handleModalSave(name: string, url: string) {
+		showModal = false;
+		onsubmit(url.trim(), name.trim() || undefined);
+		inputUrl = '';
+		inputName = '';
 		setTimeout(loadSavedUrls, 1000);
 	}
 
@@ -75,14 +85,6 @@
 
 	<input
 		type="text"
-		class="url-input name-input"
-		bind:value={inputName}
-		placeholder="Playlist Name (Optional)"
-		onkeydown={handleKeydown}
-	/>
-
-	<input
-		type="text"
 		class="url-input"
 		bind:value={inputUrl}
 		placeholder="Link to .m3u playlist"
@@ -98,6 +100,16 @@
 		{isLoading ? 'Loading...' : 'Load Playlist'}
 	</button>
 </div>
+
+{#if showModal}
+	<PlaylistModal
+		isNew={true}
+		initialName={inputName}
+		initialUrl={inputUrl}
+		onsave={handleModalSave}
+		oncancel={() => (showModal = false)}
+	/>
+{/if}
 
 <style lang="scss">
 	@use '$lib/styles/abstracts' as *;
