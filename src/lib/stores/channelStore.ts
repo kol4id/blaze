@@ -104,7 +104,7 @@ export async function loadLastPlaylist(): Promise<void> {
 
 let healthCheckController: AbortController | null = null;
 
-export async function runHealthCheck(): Promise<void> {
+async function runHealthCheck(): Promise<void> {
 	let currentState = getCurrentState();
 	if (currentState.channels.length === 0) return;
 
