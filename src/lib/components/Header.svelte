@@ -18,7 +18,7 @@
 </header>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	header {
 		@include glass;
 		padding: $spacing-lg;

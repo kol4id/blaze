@@ -4,7 +4,11 @@ import { ChannelStatus } from '../types/channel';
 import { loadPlaylistFromUrl } from '../services/playlistLoader';
 import { checkAllChannelsHealth } from '../services/healthChecker';
 import { computePreloadUrls } from '../services/preloadManager';
-import { savePlaylistLocally, getPlaylistLocally, getLastPlaylistUrlLocally } from '../services/storageService';
+import {
+	savePlaylistLocally,
+	getPlaylistLocally,
+	getLastPlaylistUrlLocally
+} from '../services/storageService';
 
 interface ChannelStoreState {
 	channels: Channel[];
@@ -49,20 +53,24 @@ function getCurrentState(): ChannelStoreState {
 	return result;
 }
 
-export async function loadPlaylist(url: string, forceRefresh = false, name?: string): Promise<void> {
+export async function loadPlaylist(
+	url: string,
+	forceRefresh = false,
+	name?: string
+): Promise<void> {
 	store.update((state) => ({ ...state, isLoadingPlaylist: true }));
 	try {
-        let channels: Channel[] | undefined;
-        
-        if (!forceRefresh) {
-            const cached = await getPlaylistLocally(url);
-            if (cached) channels = cached.channels;
-        }
+		let channels: Channel[] | undefined;
 
-        if (!channels) {
-		    channels = await loadPlaylistFromUrl(url);
-        }
-		
+		if (!forceRefresh) {
+			const cached = await getPlaylistLocally(url);
+			if (cached) channels = cached.channels;
+		}
+
+		if (!channels) {
+			channels = await loadPlaylistFromUrl(url);
+		}
+
 		// Always save if we have channels, so that the name gets updated even if from cache
 		if (channels && (name || !forceRefresh)) {
 			await savePlaylistLocally(url, channels, name);
@@ -84,14 +92,14 @@ export async function loadPlaylist(url: string, forceRefresh = false, name?: str
 }
 
 export async function loadLastPlaylist(): Promise<void> {
-    try {
-        const lastUrl = await getLastPlaylistUrlLocally();
-        if (lastUrl) {
-            await loadPlaylist(lastUrl);
-        }
-    } catch (e) {
-        console.error('Failed to load last playlist', e);
-    }
+	try {
+		const lastUrl = await getLastPlaylistUrlLocally();
+		if (lastUrl) {
+			await loadPlaylist(lastUrl);
+		}
+	} catch (e) {
+		console.error('Failed to load last playlist', e);
+	}
 }
 
 let healthCheckController: AbortController | null = null;
@@ -101,7 +109,7 @@ export async function runHealthCheck(): Promise<void> {
 	if (currentState.channels.length === 0) return;
 
 	if (healthCheckController) {
-        healthCheckController.abort();
+		healthCheckController.abort();
 		healthCheckController = null;
 	}
 
@@ -111,14 +119,18 @@ export async function runHealthCheck(): Promise<void> {
 	store.update((state) => ({ ...state, isHealthCheckRunning: true }));
 	currentState = getCurrentState();
 
-	await checkAllChannelsHealth(currentState.channels, (index, newStatus) => {
-		if (signal.aborted) return;
-		store.update((state) => {
-			const newChannels = [...state.channels];
-			if (newChannels[index]) newChannels[index] = { ...newChannels[index], status: newStatus };
-			return { ...state, channels: newChannels };
-		});
-	}, signal);
+	await checkAllChannelsHealth(
+		currentState.channels,
+		(index, newStatus) => {
+			if (signal.aborted) return;
+			store.update((state) => {
+				const newChannels = [...state.channels];
+				if (newChannels[index]) newChannels[index] = { ...newChannels[index], status: newStatus };
+				return { ...state, channels: newChannels };
+			});
+		},
+		signal
+	);
 
 	if (!signal.aborted) {
 		store.update((state) => {
