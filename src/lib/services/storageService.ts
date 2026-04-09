@@ -62,11 +62,8 @@ export async function getAllSavedPlaylistsLocally(): Promise<SavedPlaylist[]> {
 	const playlistKeys = allKeys.filter(
 		(k) => typeof k === 'string' && k.startsWith(PLAYLIST_KEY_PREFIX)
 	);
-	const playlists: SavedPlaylist[] = [];
-	for (const key of playlistKeys) {
-		const pl = await get<SavedPlaylist>(key as string);
-		if (pl) playlists.push(pl);
-	}
+	const results = await Promise.all(playlistKeys.map((key) => get<SavedPlaylist>(key as string)));
+	const playlists: SavedPlaylist[] = results.filter((pl): pl is SavedPlaylist => pl !== undefined);
 	return playlists.sort((a, b) => b.timestamp - a.timestamp);
 }
 
