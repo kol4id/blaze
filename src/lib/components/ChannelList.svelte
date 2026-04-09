@@ -14,15 +14,15 @@
 		channels: Channel[];
 		currentStreamUrl: string;
 		isLoadingList: boolean;
-		onselect: (channel: Channel) => void;
+		onselect: (index: number) => void;
 		onhoverstart: (url: string, status: ChannelStatus) => void;
 		onhoverend: () => void;
 	}>();
 
-	function handleKeydown(e: KeyboardEvent, channel: Channel) {
+	function handleKeydown(e: KeyboardEvent, index: number) {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
-			onselect(channel);
+			onselect(index);
 		}
 	}
 </script>
@@ -31,14 +31,14 @@
 	<div class="panel-header">Channels ({channels.length})</div>
 	{#if channels.length > 0}
 		<ul class="channel-list">
-			{#each channels as channel (channel.id)}
+			{#each channels as channel, i (channel.id)}
 				<ChannelItem
 					{channel}
 					isActive={currentStreamUrl === channel.url}
-					onclick={() => onselect(channel)}
+					onclick={() => onselect(i)}
 					onmouseenter={() => onhoverstart(channel.url, channel.status)}
 					onmouseleave={onhoverend}
-					onkeydown={(e) => handleKeydown(e, channel)}
+					onkeydown={(e) => handleKeydown(e, i)}
 				/>
 			{/each}
 		</ul>

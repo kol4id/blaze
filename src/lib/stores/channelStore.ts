@@ -104,7 +104,7 @@ export async function loadLastPlaylist(): Promise<void> {
 
 let healthCheckController: AbortController | null = null;
 
-export async function runHealthCheck(): Promise<void> {
+async function runHealthCheck(): Promise<void> {
 	let currentState = getCurrentState();
 	if (currentState.channels.length === 0) return;
 
@@ -169,11 +169,6 @@ export function playChannelByIndex(index: number): void {
 	const channel = state.channels[index];
 	if (!channel || channel.status !== ChannelStatus.Online) return;
 	store.update((state) => ({ ...state, currentIndex: index, currentStreamUrl: channel.url }));
-}
-
-export function playChannel(channel: Channel): void {
-	const idx = getCurrentState().channels.findIndex((c) => c.id === channel.id);
-	if (idx !== -1) playChannelByIndex(idx);
 }
 
 export function setHoveredUrl(url: string | null): void {
