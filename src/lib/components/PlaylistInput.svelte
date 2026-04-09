@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { getAllSavedPlaylistsLocally } from '../services/storageService';
+	import PlaylistModal from './PlaylistModal.svelte';
 
 	let { isLoading = false, onsubmit } = $props<{
 		isLoading?: boolean;
@@ -9,14 +10,15 @@
 
 	let inputUrl = $state('');
 	let inputName = $state('');
+	let showModal = $state(false);
 	let savedUrls = $state<{ url: string; timestamp: number }[]>([]);
 
 	async function loadSavedUrls() {
 		try {
 			const playlists = await getAllSavedPlaylistsLocally();
-			savedUrls = playlists.map(p => ({ url: p.url, timestamp: p.timestamp }));
+			savedUrls = playlists.map((p) => ({ url: p.url, timestamp: p.timestamp }));
 		} catch (e) {
-			console.error("Failed to load saved playlists", e);
+			console.error('Failed to load saved playlists', e);
 		}
 	}
 
@@ -30,8 +32,16 @@
 	});
 
 	function handleSubmit() {
-		onsubmit(inputUrl, inputName.trim() || undefined);
-		// Reload saved URLs shortly after submission since loadPlaylist should save it
+		if (inputUrl.trim()) {
+			showModal = true;
+		}
+	}
+
+	function handleModalSave(name: string, url: string) {
+		showModal = false;
+		onsubmit(url.trim(), name.trim() || undefined);
+		inputUrl = '';
+		inputName = '';
 		setTimeout(loadSavedUrls, 1000);
 	}
 
@@ -62,7 +72,7 @@
 				if (val) {
 					inputUrl = val;
 					handleSubmit();
-					(e.currentTarget as HTMLSelectElement).value = "";
+					(e.currentTarget as HTMLSelectElement).value = '';
 				}
 			}}
 		>
@@ -72,14 +82,6 @@
 			{/each}
 		</select>
 	{/if}
-
-	<input
-		type="text"
-		class="url-input name-input"
-		bind:value={inputName}
-		placeholder="Playlist Name (Optional)"
-		onkeydown={handleKeydown}
-	/>
 
 	<input
 		type="text"
@@ -99,8 +101,18 @@
 	</button>
 </div>
 
+{#if showModal}
+	<PlaylistModal
+		isNew={true}
+		initialName={inputName}
+		initialUrl={inputUrl}
+		onsave={handleModalSave}
+		oncancel={() => (showModal = false)}
+	/>
+{/if}
+
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	.input-group {
 		display: flex;
 		gap: $spacing-sm;

@@ -21,7 +21,7 @@
 </div>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	.player-wrapper {
 		flex-grow: 1;
 		display: flex;
