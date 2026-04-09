@@ -11,7 +11,11 @@ export interface SavedPlaylist {
 	timestamp: number;
 }
 
-export async function savePlaylistLocally(url: string, channels: Channel[], name?: string): Promise<void> {
+export async function savePlaylistLocally(
+	url: string,
+	channels: Channel[],
+	name?: string
+): Promise<void> {
 	const existing = await getPlaylistLocally(url);
 	await set(PLAYLIST_KEY_PREFIX + url, {
 		url,
@@ -22,7 +26,11 @@ export async function savePlaylistLocally(url: string, channels: Channel[], name
 	await set(LAST_PLAYLIST_KEY, url);
 }
 
-export async function updatePlaylistDataLocally(oldUrl: string, newUrl: string, newName: string): Promise<void> {
+export async function updatePlaylistDataLocally(
+	oldUrl: string,
+	newUrl: string,
+	newName: string
+): Promise<void> {
 	const existing = await getPlaylistLocally(oldUrl);
 	if (existing) {
 		const updatedPlaylist = {
@@ -31,7 +39,7 @@ export async function updatePlaylistDataLocally(oldUrl: string, newUrl: string, 
 			name: newName,
 			timestamp: Date.now()
 		};
-		
+
 		if (oldUrl !== newUrl) {
 			await del(PLAYLIST_KEY_PREFIX + oldUrl);
 			// Also update last playlist if it was this one
@@ -40,7 +48,7 @@ export async function updatePlaylistDataLocally(oldUrl: string, newUrl: string, 
 				await set(LAST_PLAYLIST_KEY, newUrl);
 			}
 		}
-		
+
 		await set(PLAYLIST_KEY_PREFIX + newUrl, updatedPlaylist);
 	}
 }
@@ -51,12 +59,11 @@ export async function getPlaylistLocally(url: string): Promise<SavedPlaylist | u
 
 export async function getAllSavedPlaylistsLocally(): Promise<SavedPlaylist[]> {
 	const allKeys = await keys();
-	const playlistKeys = allKeys.filter((k) => typeof k === 'string' && k.startsWith(PLAYLIST_KEY_PREFIX));
-	const playlists: SavedPlaylist[] = [];
-	for (const key of playlistKeys) {
-		const pl = await get<SavedPlaylist>(key as string);
-		if (pl) playlists.push(pl);
-	}
+	const playlistKeys = allKeys.filter(
+		(k) => typeof k === 'string' && k.startsWith(PLAYLIST_KEY_PREFIX)
+	);
+	const results = await Promise.all(playlistKeys.map((key) => get<SavedPlaylist>(key as string)));
+	const playlists: SavedPlaylist[] = results.filter((pl): pl is SavedPlaylist => pl !== undefined);
 	return playlists.sort((a, b) => b.timestamp - a.timestamp);
 }
 

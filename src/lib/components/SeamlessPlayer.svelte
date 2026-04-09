@@ -86,7 +86,12 @@
 		if (nextActiveIdx === -1) {
 			nextActiveIdx = loadedUrls.findIndex((u) => !u);
 			if (nextActiveIdx !== -1) {
-				hlsInstances[nextActiveIdx] = initPlayer(videos[nextActiveIdx], targetSrc, false, nextActiveIdx);
+				hlsInstances[nextActiveIdx] = initPlayer(
+					videos[nextActiveIdx],
+					targetSrc,
+					false,
+					nextActiveIdx
+				);
 			}
 		}
 
@@ -150,7 +155,7 @@
 </div>
 
 <style lang="scss">
-	@use "$lib/styles/abstracts" as *;
+	@use '$lib/styles/abstracts' as *;
 	.video-container {
 		position: relative;
 		width: 100%;
