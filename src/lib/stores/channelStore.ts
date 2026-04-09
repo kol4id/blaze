@@ -171,11 +171,6 @@ export function playChannelByIndex(index: number): void {
 	store.update((state) => ({ ...state, currentIndex: index, currentStreamUrl: channel.url }));
 }
 
-export function playChannel(channel: Channel): void {
-	const idx = getCurrentState().channels.findIndex((c) => c.id === channel.id);
-	if (idx !== -1) playChannelByIndex(idx);
-}
-
 export function setHoveredUrl(url: string | null): void {
 	store.update((state) => ({ ...state, hoveredUrl: url }));
 }

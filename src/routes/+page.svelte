@@ -9,7 +9,6 @@
 		loadPlaylist,
 		loadLastPlaylist,
 		playChannelByIndex,
-		playChannel,
 		setHoveredUrl,
 		getPreloadUrls
 	} from '$lib/stores/channelStore';
@@ -112,7 +111,7 @@
 				{channels}
 				{currentStreamUrl}
 				{isLoadingList}
-				onselect={playChannel}
+				onselect={playChannelByIndex}
 				onhoverstart={handleHoverStart}
 				onhoverend={handleHoverEnd}
 			/>
