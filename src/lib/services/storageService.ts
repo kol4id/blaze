@@ -1,4 +1,4 @@
-import { get, set, del, keys } from 'idb-keyval';
+import { get, set, del, entries } from 'idb-keyval';
 import type { Channel } from '$lib/types/channel';
 
 const PLAYLIST_KEY_PREFIX = 'playlist_';
@@ -58,12 +58,13 @@ export async function getPlaylistLocally(url: string): Promise<SavedPlaylist | u
 }
 
 export async function getAllSavedPlaylistsLocally(): Promise<SavedPlaylist[]> {
-	const allKeys = await keys();
-	const playlistKeys = allKeys.filter(
-		(k) => typeof k === 'string' && k.startsWith(PLAYLIST_KEY_PREFIX)
-	);
-	const results = await Promise.all(playlistKeys.map((key) => get<SavedPlaylist>(key as string)));
-	const playlists: SavedPlaylist[] = results.filter((pl): pl is SavedPlaylist => pl !== undefined);
+	const allEntries = await entries();
+	const playlists: SavedPlaylist[] = allEntries
+		.filter(
+			([key, value]) =>
+				typeof key === 'string' && key.startsWith(PLAYLIST_KEY_PREFIX) && value !== undefined
+		)
+		.map(([_, value]) => value as SavedPlaylist);
 	return playlists.sort((a, b) => b.timestamp - a.timestamp);
 }
 
