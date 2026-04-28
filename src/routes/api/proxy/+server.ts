@@ -1,12 +1,13 @@
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ request, url }) => {
+export const GET: RequestHandler = async ({ request, url, fetch }) => {
 	const targetUrl = url.searchParams.get('url');
 	if (!targetUrl) {
 		return new Response('Missing "url" parameter', { status: 400 });
 	}
 
 	const rangeHeader = url.searchParams.get('range') || undefined;
+	const origin = request.headers.get('origin');
 
 	try {
 		const response = await fetch(targetUrl, {
@@ -17,14 +18,19 @@ export const GET: RequestHandler = async ({ request, url }) => {
 			}
 		});
 
+		const headers: Record<string, string> = {
+			'Content-Type': response.headers.get('content-type') || 'application/vnd.apple.mpegurl',
+			'Access-Control-Allow-Methods': 'GET, OPTIONS',
+			'Access-Control-Allow-Headers': 'Range, User-Agent'
+		};
+
+		if (origin === url.origin) {
+			headers['Access-Control-Allow-Origin'] = origin;
+		}
+
 		return new Response(response.body, {
 			status: response.status,
-			headers: {
-				'Content-Type': response.headers.get('content-type') || 'application/vnd.apple.mpegurl',
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Methods': 'GET, OPTIONS',
-				'Access-Control-Allow-Headers': 'Range, User-Agent'
-			}
+			headers
 		});
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
@@ -34,12 +40,19 @@ export const GET: RequestHandler = async ({ request, url }) => {
 	}
 };
 
-export const OPTIONS: RequestHandler = async () => {
+export const OPTIONS: RequestHandler = async ({ request, url }) => {
+	const origin = request.headers.get('origin');
+
+	const headers: Record<string, string> = {
+		'Access-Control-Allow-Methods': 'GET, OPTIONS',
+		'Access-Control-Allow-Headers': 'Range, User-Agent'
+	};
+
+	if (origin === url.origin) {
+		headers['Access-Control-Allow-Origin'] = origin;
+	}
+
 	return new Response(null, {
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, OPTIONS',
-			'Access-Control-Allow-Headers': 'Range, User-Agent'
-		}
+		headers
 	});
 };
