@@ -1,42 +1,22 @@
-# sv
+# Blaze
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Blaze - это веб-плеер для IPTV и M3U плейлистов, созданный с использованием SvelteKit. Проект нацелен на предоставление быстрого и отзывчивого интерфейса для просмотра потокового видео.
 
-## Creating a project
+## Что уже реализовано
 
-If you're seeing this, you've probably already done this step. Congrats!
+В данный момент в проекте реализован следующий функционал:
+- Парсинг M3U плейлистов для извлечения информации о каналах.
+- Воспроизведение видео в формате HLS с использованием библиотеки hls.js.
+- Бесшовное переключение каналов благодаря предварительной загрузке потоков в фоновом режиме.
+- Локальное сохранение добавленных плейлистов в браузере с помощью IndexedDB.
+- Управление с клавиатуры для удобной навигации по каналам, имитирующее работу с пультом телевизора.
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Планы и ожидаемый результат
 
-To recreate this project with the same configuration:
+В конечном итоге Blaze должен стать минималистичным, невероятно быстрым и адаптивным IPTV-плеером, работающим прямо в браузере. Главная цель проекта - обеспечить мгновенное переключение между каналами, создавая ощущение использования настоящего телевизора без задержек при загрузке.
 
-```sh
-# recreate this project
-npx sv@0.14.0 create --template minimal --types ts --add prettier eslint --install npm ./
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+В планах также:
+- Улучшение пользовательского интерфейса для более комфортного использования на различных устройствах.
+- Оптимизация производительности и потребления ресурсов.
+- Поддержка EPG (электронного телегида) для просмотра программы передач.
+- Добавление группировки и фильтрации каналов по категориям.
