@@ -26,6 +26,8 @@
 		display: flex;
 		align-items: center;
 		gap: $spacing-lg;
+		position: relative;
+		z-index: 10;
 	}
 
 	.logo {

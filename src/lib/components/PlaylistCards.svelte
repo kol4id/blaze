@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import PlaylistModal from './PlaylistModal.svelte';
+	import ConfirmModal from './ConfirmModal.svelte';
 	import {
 		getAllSavedPlaylistsLocally,
 		updatePlaylistDataLocally,
@@ -19,6 +20,7 @@
 	let editingPlaylist = $state<SavedPlaylist | null>(null);
 	let editName = $state('');
 	let editUrl = $state('');
+	let deletingPlaylist = $state<SavedPlaylist | null>(null);
 
 	onMount(async () => {
 		await loadPlaylists();
@@ -70,10 +72,15 @@
 		}
 	}
 
-	async function handleDelete() {
-		if (editingPlaylist && confirm('Are you sure you want to delete this playlist?')) {
-			await deletePlaylistLocally(editingPlaylist.url);
-			editingPlaylist = null;
+	function promptDelete(playlist: SavedPlaylist) {
+		deletingPlaylist = playlist;
+		editingPlaylist = null; // Close edit modal if open
+	}
+
+	async function confirmDelete() {
+		if (deletingPlaylist) {
+			await deletePlaylistLocally(deletingPlaylist.url);
+			deletingPlaylist = null;
 			await loadPlaylists();
 			window.dispatchEvent(new CustomEvent('playlists-updated'));
 		}
@@ -130,7 +137,16 @@
 			initialUrl={editUrl}
 			onsave={saveSettings}
 			oncancel={closeSettings}
-			ondelete={handleDelete}
+			ondelete={() => promptDelete(editingPlaylist!)}
+		/>
+	{/if}
+
+	{#if deletingPlaylist}
+		<ConfirmModal
+			message="Are you sure you want to delete '{deletingPlaylist.name ||
+				formatLabel(deletingPlaylist.url)}'?"
+			onconfirm={confirmDelete}
+			oncancel={() => (deletingPlaylist = null)}
 		/>
 	{/if}
 </div>

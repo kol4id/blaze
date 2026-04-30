@@ -6,27 +6,36 @@ describe('Proxy API CORS', () => {
 	const otherOrigin = 'http://evil.com';
 
 	beforeEach(() => {
-		vi.stubGlobal('fetch', vi.fn(() =>
-			Promise.resolve(new Response('dummy', {
-				status: 200,
-				headers: { 'content-type': 'application/vnd.apple.mpegurl' }
-			}))
-		));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(() =>
+				Promise.resolve(
+					new Response('dummy', {
+						status: 200,
+						headers: { 'content-type': 'application/vnd.apple.mpegurl' }
+					})
+				)
+			)
+		);
 	});
 
 	it('GET should allow same origin', async () => {
 		const url = new URL(`${appOrigin}/api/proxy?url=http://example.com/stream.m3u8`);
 		const request = new Request(url, {
-			headers: { 'Origin': appOrigin }
+			headers: { Origin: appOrigin }
 		});
 
 		const event = {
 			request,
 			url,
-			fetch: vi.fn().mockImplementation(() => Promise.resolve(new Response('dummy', {
-				status: 200,
-				headers: { 'content-type': 'application/vnd.apple.mpegurl' }
-			})))
+			fetch: vi.fn().mockImplementation(() =>
+				Promise.resolve(
+					new Response('dummy', {
+						status: 200,
+						headers: { 'content-type': 'application/vnd.apple.mpegurl' }
+					})
+				)
+			)
 		};
 
 		// @ts-ignore
@@ -37,7 +46,7 @@ describe('Proxy API CORS', () => {
 	it('GET should deny different origin', async () => {
 		const url = new URL(`${appOrigin}/api/proxy?url=http://example.com/stream.m3u8`);
 		const request = new Request(url, {
-			headers: { 'Origin': otherOrigin }
+			headers: { Origin: otherOrigin }
 		});
 
 		const event = {
@@ -54,7 +63,7 @@ describe('Proxy API CORS', () => {
 	it('OPTIONS should allow same origin', async () => {
 		const url = new URL(`${appOrigin}/api/proxy`);
 		const request = new Request(url, {
-			headers: { 'Origin': appOrigin }
+			headers: { Origin: appOrigin }
 		});
 
 		const event = {
@@ -70,7 +79,7 @@ describe('Proxy API CORS', () => {
 	it('OPTIONS should deny different origin', async () => {
 		const url = new URL(`${appOrigin}/api/proxy`);
 		const request = new Request(url, {
-			headers: { 'Origin': otherOrigin }
+			headers: { Origin: otherOrigin }
 		});
 
 		const event = {

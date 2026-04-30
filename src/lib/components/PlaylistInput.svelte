@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getAllSavedPlaylistsLocally } from '../services/storageService';
+	import {
+		getAllSavedPlaylistsLocally,
+		updatePlaylistDataLocally,
+		deletePlaylistLocally,
+		togglePlaylistFavoriteLocally
+	} from '../services/storageService';
+	import type { SavedPlaylist } from '../services/storageService';
 	import PlaylistModal from './PlaylistModal.svelte';
+	import ConfirmModal from './ConfirmModal.svelte';
 	import { formatLabel } from '$lib/utils/formatters';
 
 	let { isLoading = false, onsubmit } = $props<{
@@ -12,14 +19,27 @@
 	let inputUrl = $state('');
 	let inputName = $state('');
 	let showModal = $state(false);
-	let savedUrls = $state<{ url: string; timestamp: number }[]>([]);
+	let isDropdownOpen = $state(false);
+	let dropdownRef = $state<HTMLDivElement | null>(null);
+
+	let savedPlaylists = $state<SavedPlaylist[]>([]);
+
+	let editingPlaylist = $state<SavedPlaylist | null>(null);
+	let editName = $state('');
+	let editUrl = $state('');
+	let deletingPlaylist = $state<SavedPlaylist | null>(null);
 
 	async function loadSavedUrls() {
 		try {
-			const playlists = await getAllSavedPlaylistsLocally();
-			savedUrls = playlists.map((p) => ({ url: p.url, timestamp: p.timestamp }));
+			savedPlaylists = await getAllSavedPlaylistsLocally();
 		} catch (e) {
 			console.error('Failed to load saved playlists', e);
+		}
+	}
+
+	function handleClickOutside(e: MouseEvent) {
+		if (dropdownRef && !dropdownRef.contains(e.target as Node)) {
+			isDropdownOpen = false;
 		}
 	}
 
@@ -27,8 +47,10 @@
 		loadSavedUrls();
 		const handleUpdate = () => loadSavedUrls();
 		window.addEventListener('playlists-updated', handleUpdate);
+		window.addEventListener('click', handleClickOutside);
 		return () => {
 			window.removeEventListener('playlists-updated', handleUpdate);
+			window.removeEventListener('click', handleClickOutside);
 		};
 	});
 
@@ -46,6 +68,51 @@
 		setTimeout(loadSavedUrls, 1000);
 	}
 
+	function handleSelectPlaylist(url: string) {
+		inputUrl = url;
+		isDropdownOpen = false;
+		handleSubmit();
+	}
+
+	async function toggleFavorite(e: Event, url: string) {
+		e.stopPropagation();
+		await togglePlaylistFavoriteLocally(url);
+		await loadSavedUrls();
+		window.dispatchEvent(new CustomEvent('playlists-updated'));
+	}
+
+	async function openEdit(e: Event, playlist: SavedPlaylist) {
+		e.stopPropagation();
+		editingPlaylist = playlist;
+		editName = playlist.name || formatLabel(playlist.url);
+		editUrl = playlist.url;
+		isDropdownOpen = false;
+	}
+
+	async function saveEditSettings(newName: string, newUrl: string) {
+		if (editingPlaylist && newUrl.trim()) {
+			await updatePlaylistDataLocally(editingPlaylist.url, newUrl.trim(), newName.trim());
+			editingPlaylist = null;
+			await loadSavedUrls();
+			window.dispatchEvent(new CustomEvent('playlists-updated'));
+		}
+	}
+
+	function promptDelete(e: Event, playlist: SavedPlaylist) {
+		e.stopPropagation();
+		deletingPlaylist = playlist;
+		isDropdownOpen = false;
+	}
+
+	async function confirmDelete() {
+		if (deletingPlaylist) {
+			await deletePlaylistLocally(deletingPlaylist.url);
+			deletingPlaylist = null;
+			await loadSavedUrls();
+			window.dispatchEvent(new CustomEvent('playlists-updated'));
+		}
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter') {
 			handleSubmit();
@@ -54,23 +121,56 @@
 </script>
 
 <div class="input-group">
-	{#if savedUrls.length > 0}
-		<select
-			class="url-input saved-select"
-			onchange={(e) => {
-				const val = (e.currentTarget as HTMLSelectElement).value;
-				if (val) {
-					inputUrl = val;
-					handleSubmit();
-					(e.currentTarget as HTMLSelectElement).value = '';
-				}
-			}}
-		>
-			<option value="" disabled selected>Saved Playlists</option>
-			{#each savedUrls as saved (saved.url)}
-				<option value={saved.url}>{formatLabel(saved.url)}</option>
-			{/each}
-		</select>
+	{#if savedPlaylists.length > 0}
+		<div class="dropdown-container" bind:this={dropdownRef}>
+			<button
+				class="url-input saved-select"
+				onclick={(e) => {
+					e.stopPropagation();
+					isDropdownOpen = !isDropdownOpen;
+				}}
+			>
+				Saved Playlists ▾
+			</button>
+			{#if isDropdownOpen}
+				<ul class="dropdown-list">
+					{#each savedPlaylists as playlist (playlist.url)}
+						<li
+							class="dropdown-item"
+							onclick={() => handleSelectPlaylist(playlist.url)}
+							role="option"
+							aria-selected="false"
+							tabindex="0"
+							onkeydown={(e) => e.key === 'Enter' && handleSelectPlaylist(playlist.url)}
+						>
+							<span class="playlist-name">{playlist.name || formatLabel(playlist.url)}</span>
+							<div class="playlist-actions">
+								<button
+									class="action-btn"
+									onclick={(e) => openEdit(e, playlist)}
+									title="Rename"
+									aria-label="Rename">✏️</button
+								>
+								<button
+									class="action-btn {playlist.isFavorite ? 'favorite' : ''}"
+									onclick={(e) => toggleFavorite(e, playlist.url)}
+									title="Favorite"
+									aria-label="Favorite"
+								>
+									{playlist.isFavorite ? '★' : '☆'}
+								</button>
+								<button
+									class="action-btn delete"
+									onclick={(e) => promptDelete(e, playlist)}
+									title="Delete"
+									aria-label="Delete">🗑️</button
+								>
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
 	{/if}
 
 	<input
@@ -82,7 +182,7 @@
 		list="saved-playlists"
 	/>
 	<datalist id="saved-playlists">
-		{#each savedUrls as saved (saved.url)}
+		{#each savedPlaylists as saved (saved.url)}
 			<option value={saved.url}></option>
 		{/each}
 	</datalist>
@@ -101,6 +201,25 @@
 	/>
 {/if}
 
+{#if editingPlaylist}
+	<PlaylistModal
+		initialName={editName}
+		initialUrl={editUrl}
+		onsave={saveEditSettings}
+		oncancel={() => (editingPlaylist = null)}
+		ondelete={() => promptDelete(new Event('click'), editingPlaylist!)}
+	/>
+{/if}
+
+{#if deletingPlaylist}
+	<ConfirmModal
+		message="Are you sure you want to delete '{deletingPlaylist.name ||
+			formatLabel(deletingPlaylist.url)}'?"
+		onconfirm={confirmDelete}
+		oncancel={() => (deletingPlaylist = null)}
+	/>
+{/if}
+
 <style lang="scss">
 	@use '$lib/styles/abstracts' as *;
 	.input-group {
@@ -108,10 +227,103 @@
 		gap: $spacing-sm;
 	}
 
+	.dropdown-container {
+		position: relative;
+		flex-shrink: 0;
+	}
+
 	.saved-select {
 		flex-grow: 0;
-		max-width: 200px;
 		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		white-space: nowrap;
+		min-width: 150px;
+	}
+
+	.dropdown-list {
+		position: absolute;
+		top: calc(100% + $spacing-sm);
+		left: 0;
+		width: max-content;
+		min-width: 280px;
+		max-height: 300px;
+		overflow-y: auto;
+		background: #151a25; // solid dark color to avoid transparency issues
+		border: 1px solid $border-glass;
+		border-radius: $radius-md;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+		z-index: 50;
+		list-style: none;
+		margin: 0;
+		padding: $spacing-xs;
+		@include dark-scrollbar(6px);
+	}
+
+	.dropdown-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: $spacing-sm $spacing-md;
+		border-radius: $radius-sm;
+		cursor: pointer;
+		transition: background $transition-base;
+		color: $text-primary;
+		gap: $spacing-md;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(255, 255, 255, 0.1);
+			outline: none;
+		}
+	}
+
+	.playlist-name {
+		flex-grow: 1;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: $fs-sm;
+	}
+
+	.playlist-actions {
+		display: flex;
+		gap: $spacing-xs;
+		opacity: 0;
+		transition: opacity $transition-base;
+
+		.dropdown-item:hover &,
+		.dropdown-item:focus-within & {
+			opacity: 1;
+		}
+	}
+
+	.action-btn {
+		background: none;
+		border: none;
+		padding: 4px;
+		border-radius: $radius-sm;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all $transition-base;
+		font-size: 14px;
+		color: $text-secondary;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: scale(1.1);
+		}
+
+		&.favorite {
+			color: #eab308; // yellow-500
+		}
+
+		&.delete:hover {
+			background: rgba(#ef4444, 0.2);
+		}
 	}
 
 	.url-input {
