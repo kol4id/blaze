@@ -250,11 +250,10 @@
 		min-width: 280px;
 		max-height: 300px;
 		overflow-y: auto;
-		background: $bg-glass;
+		background: #151a25; // solid dark color to avoid transparency issues
 		border: 1px solid $border-glass;
 		border-radius: $radius-md;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(10px);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 		z-index: 50;
 		list-style: none;
 		margin: 0;
