@@ -9,6 +9,7 @@ export interface SavedPlaylist {
 	name?: string;
 	channels: Channel[];
 	timestamp: number;
+	isFavorite?: boolean;
 }
 
 export async function savePlaylistLocally(
@@ -64,8 +65,24 @@ export async function getAllSavedPlaylistsLocally(): Promise<SavedPlaylist[]> {
 			([key, value]) =>
 				typeof key === 'string' && key.startsWith(PLAYLIST_KEY_PREFIX) && value !== undefined
 		)
-		.map(([_, value]) => value as SavedPlaylist);
-	return playlists.sort((a, b) => b.timestamp - a.timestamp);
+		.map(([, value]) => value as SavedPlaylist);
+	return playlists.sort((a, b) => {
+		if (a.isFavorite && !b.isFavorite) return -1;
+		if (!a.isFavorite && b.isFavorite) return 1;
+		return b.timestamp - a.timestamp;
+	});
+}
+
+export async function togglePlaylistFavoriteLocally(url: string): Promise<void> {
+	const existing = await getPlaylistLocally(url);
+	if (existing) {
+		const updatedPlaylist = {
+			...existing,
+			isFavorite: !existing.isFavorite,
+			timestamp: Date.now() // Optional: update timestamp so it pops to top of favorites
+		};
+		await set(PLAYLIST_KEY_PREFIX + url, updatedPlaylist);
+	}
 }
 
 export async function deletePlaylistLocally(url: string): Promise<void> {
